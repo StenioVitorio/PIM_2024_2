@@ -1,0 +1,161 @@
+CREATE DATABASE db_fazenda_urbana;
+
+USE db_fazenda_urbana;
+
+
+
+
+CREATE TABLE Gerencia (            
+    ID_gerencia_PK INT PRIMARY KEY,
+    Usuario NVARCHAR(255) NOT NULL UNIQUE,
+	E_mail NVARCHAR(255) NOT NULL,
+    Senha NVARCHAR(40) NOT NULL,
+	Tipo_Conta NVARCHAR(100) NOT NULL
+);
+
+CREATE TABLE Funcionario (
+    ID_funcionario_PK INT IDENTITY(1,1) PRIMARY KEY,
+    ID_gerencia_PK INT,
+    CPF CHAR(14) NOT NULL UNIQUE,
+    Nome NVARCHAR(255) NOT NULL,
+    Cargo NVARCHAR(255) NOT NULL,
+    Bairro NVARCHAR(255) NOT NULL,
+    Municipio NVARCHAR(255) NOT NULL,
+    UF CHAR(2) NOT NULL,
+    Rua NVARCHAR(255) NOT NULL,
+    Numero INT NOT NULL,
+    CEP CHAR(9) NOT NULL,
+    E_mail NVARCHAR(255) NOT NULL,
+    Telefone NVARCHAR(20) NOT NULL,
+    Tel_emergencial NVARCHAR(20) NOT NULL,
+    Usuario NVARCHAR(255) NOT NULL UNIQUE,
+    Senha NVARCHAR(40) NOT NULL,
+	Tipo_Conta NVARCHAR(100) NOT NULL,
+    FOREIGN KEY (ID_gerencia_PK) REFERENCES Gerencia(ID_gerencia_PK) ON DELETE NO ACTION
+);
+
+CREATE TABLE Cliente (
+    ID_cliente_PK INT IDENTITY(1,1) PRIMARY KEY,
+    CNPJ CHAR(18) NOT NULL UNIQUE,
+    Razao_social NVARCHAR(255) NOT NULL,
+    Nome NVARCHAR(255) NOT NULL,
+    UF CHAR(2) NOT NULL,
+    Numero INT NOT NULL,
+    Municipio NVARCHAR(255) NOT NULL,
+    Bairro NVARCHAR(255) NOT NULL,
+    Rua NVARCHAR(255) NOT NULL,
+    CEP CHAR(9) NOT NULL,
+    Telefone_1 NVARCHAR(20) NOT NULL,
+    Telefone_2 NVARCHAR(20),
+    E_mail NVARCHAR(255) NOT NULL,
+	Tipo_Conta NVARCHAR(100) NOT NULL,
+    Usuario NVARCHAR(255) NOT NULL UNIQUE,
+    Senha NVARCHAR(40) NOT NULL
+);
+
+CREATE TABLE Fazenda (
+    ID_fazenda_PK INT IDENTITY(1,1) PRIMARY KEY,
+    Nome NVARCHAR(255) NOT NULL,
+    CNPJ CHAR(18) NOT NULL UNIQUE,
+    Razao_Social NVARCHAR(255) NOT NULL,
+    CEP CHAR(9) NOT NULL,
+    UF CHAR(2),
+    Rua NVARCHAR(255) NOT NULL,
+    Municipio NVARCHAR(255) NOT NULL,
+    Bairro NVARCHAR(255) NOT NULL,
+    Numero INT NOT NULL,
+    Telefone_1 NVARCHAR(20) NOT NULL,
+    Telefone_2 NVARCHAR(20),
+    E_mail NVARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Fornecedor (
+    ID_fornecedor_PK INT IDENTITY(1,1) PRIMARY KEY,
+    CNPJ CHAR(18) NOT NULL UNIQUE,
+    Nome NVARCHAR(255) NOT NULL,
+    Razao_social NVARCHAR(255) NOT NULL,
+    Municipio NVARCHAR(255) NOT NULL,
+    Bairro NVARCHAR(255) NOT NULL,
+    CEP CHAR(9) NOT NULL,
+    Rua NVARCHAR(255) NOT NULL,
+    UF CHAR(2) NOT NULL,
+    Numero INT NOT NULL,
+    Telefone_1 NVARCHAR(20) NOT NULL,
+    Telefone_2 NVARCHAR(20),
+    E_mail NVARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Controle_Estoque (
+    Controle_estoque_PK INT IDENTITY(1,1) PRIMARY KEY,
+    Data_vistorias DATE NOT NULL,
+    Data_ultima_limpeza DATE NOT NULL
+);
+
+CREATE TABLE Insumo (
+    ID_insumo_PK INT IDENTITY(1,1) PRIMARY KEY,
+    Tipo_armazenagem NVARCHAR(255) NOT NULL,
+    Nome_insumo NVARCHAR(255) NOT NULL,
+    Data_pedido DATE NOT NULL,
+    Prazo_entrega INT NOT NULL,
+    Unidade_medida INT NOT NULL,
+    ID_fornecedor_PK INT NOT NULL,
+    FOREIGN KEY (ID_fornecedor_PK) REFERENCES Fornecedor(ID_fornecedor_PK) ON DELETE NO ACTION
+);
+
+CREATE TABLE Estoque_Insumo (
+    E_insumo_PK INT IDENTITY(1,1) PRIMARY KEY,
+    ID_insumo_PK INT NOT NULL,
+    Quantidade_disponivel INT NOT NULL DEFAULT 0,
+    Nome_insumo NVARCHAR(255) NOT NULL,
+    FOREIGN KEY (ID_insumo_PK) REFERENCES Insumo(ID_insumo_PK) ON DELETE NO ACTION
+);
+
+CREATE TABLE Produto (
+    ID_produto_PK INT IDENTITY(1,1) PRIMARY KEY,
+    Tipo_armazenagem NVARCHAR(255) NOT NULL,
+    Preco_produto DECIMAL(20,2) NOT NULL,
+    Nome_produto NVARCHAR(255) NOT NULL,
+    Unidade_medida INT NOT NULL,
+    ID_fazenda_PK INT NOT NULL,
+    FOREIGN KEY (ID_fazenda_PK) REFERENCES Fazenda(ID_fazenda_PK) ON DELETE NO ACTION
+);
+
+CREATE TABLE Estoque_Produto (
+    E_produto_PK INT IDENTITY(1,1) PRIMARY KEY,
+    ID_produto_PK INT NOT NULL,
+    Quantidade_disponivel INT NOT NULL DEFAULT 0,
+    Nome_produto NVARCHAR(255) NOT NULL,
+    FOREIGN KEY (ID_produto_PK) REFERENCES Produto(ID_produto_PK) ON DELETE NO ACTION
+);
+
+CREATE TABLE Plantacao (
+    ID_plantacao_PK INT IDENTITY(1,1) PRIMARY KEY,
+    Data_plantio DATE NOT NULL,
+    Tipo_plantio NVARCHAR(255) NOT NULL,
+    Tipo_cultivo NVARCHAR(255) NOT NULL,
+    Qtd_sacos_semente INT NOT NULL,
+    Qtd_sacos_adubo INT NOT NULL,
+    ID_produto_FK INT NOT NULL,
+    FOREIGN KEY (ID_produto_FK) REFERENCES Produto(ID_produto_PK) ON DELETE NO ACTION
+);
+
+CREATE TABLE Colheita (
+    ID_colheita_PK INT IDENTITY(1,1) PRIMARY KEY,
+    Data_colheita DATE NOT NULL,
+    ID_plantacao_PK INT NOT NULL,
+    Quantidade_colhida INT NOT NULL DEFAULT 0,
+    ID_produto_FK INT NOT NULL,
+    FOREIGN KEY (ID_plantacao_PK) REFERENCES Plantacao(ID_plantacao_PK) ON DELETE NO ACTION,
+    FOREIGN KEY (ID_produto_FK) REFERENCES Produto(ID_produto_PK) ON DELETE NO ACTION
+);
+
+CREATE TABLE Venda (
+    ID_venda_PK INT IDENTITY(1,1) PRIMARY KEY,
+    Quantidade_produto INT NOT NULL DEFAULT 0,
+    ID_produto_FK INT NOT NULL,
+    ID_cliente_PK INT NOT NULL,
+    Data_compra DATE NOT NULL,
+    Valor_compra DECIMAL(20,2) NOT NULL,
+    FOREIGN KEY (ID_cliente_PK) REFERENCES Cliente(ID_cliente_PK) ON DELETE NO ACTION,
+    FOREIGN KEY (ID_produto_FK) REFERENCES Produto(ID_produto_PK) ON DELETE NO ACTION
+);
